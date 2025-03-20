@@ -81,8 +81,8 @@ done
       done # minor
     done # major
   done # ap
-  find . -type f -name '*.img.S' -size 0 -delete
-  find . -type l -maxdepth 1 -name '*.img.S' -delete
+  find . -type f -name '*.S' -size 0 -delete
+  find . -type l -maxdepth 1 -name '*.S' -delete
   for ap in "${aps[@]}"; do 
 	  file="$(ls ${ap}/*.img.S | tail -n 1)"
 	  filecount="$(ls ${ap}/*.img.S | wc -l)"
