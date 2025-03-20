@@ -1,9 +1,10 @@
 #!/bin/bash
-PREFIX="https://va.extremecloudiq.com/afs-webapp/hiveos/images"
+URL="https://va.extremecloudiq.com"
+PREFIX="${URL}/afs-webapp/hiveos/images"
 HH="Host: va.extremecloudiq.com"
 DIR404=./.404
 DRY_RUN=0 # set to 1 when testing
-declare -a aps=("AP122" "AP230" "AP250" "AP650" "AP1130")
+declare -a aps=("AP122" "AP230" "AP250" "AP550" "AP650" "AP1130")
 # This is the secret sauce.  Obtain by setting up transparent SSL inspection
 # and logging of all headers as the device does an upgrade initiated by
 # ExtremeCloud IQ.
@@ -13,10 +14,11 @@ if [ ! -f basic_auth ]; then
 fi
 AH="Authorization: Basic $(cat basic_auth | head -n 1)"
 
-# latest know versions as of 3/20/2025
+# latest known versions as of 3/20/2025
 #   AP122-10.6r1a.img.S
 #   AP230-10.6r1a.img.S
 #   AP250-10.6r1a.img.S
+#   AP550-10.5r3.img.S
 #   AP650-10.7r5.img.S
 #   AP1130-10.6r1a.img.S
 
@@ -40,6 +42,9 @@ function download_firmware {
   fi # [ ! -f "$file" ]&&[ ! -f ${file404} ]
 }
 
+if [ ! -f os_dhcp_fingerprints.tar.gz ]; then
+	wget --header="$AH" --header="$HH" "${URL}/afs-webapp/hiveos/osobject/os_dhcp_fingerprints.tar.gz" 
+fi
 
 # Download known versions
 for f in AP122-10.0r8.img.S AP122-10.3r3.img.S AP122-10.3r4.img.S AP122-10.4r3.img.S AP122-10.4r4.img.S AP122-10.4r5.img.S AP122-10.5r1.img.S AP122-10.5r2.img.S AP122-10.5r3.img.S AP122-10.5r4.img.S AP122-10.5r5.img.S AP122-10.6r1.img.S AP122-10.6r1a.img.S; do
@@ -57,14 +62,16 @@ done
 for f in AP1130-10.3r3.img.S AP1130-10.3r4.img.S AP1130-10.4r3.img.S AP1130-10.4r4.img.S AP1130-10.4r5.img.S AP1130-10.5r1.img.S AP1130-10.5r2.img.S AP1130-10.5r3.img.S AP1130-10.6r1a.img.S; do
     download_firmware "${f}" AP1130
 done
-
+for f in AP550-10.3r3.img.S AP550-10.3r4.img.S AP550-10.4r3.img.S AP550-10.4r4.img.S AP550-10.4r5.img.S AP550-10.5r1.img.S AP550-10.5r2.img.S AP550-10.5r3.img.S; do
+    download_firmware "${f}" AP550
+done
   [ -d $DIR404 ]||mkdir -p $DIR404
   ./known_bad_versions.sh
   echo Searching for new versions
   for ap in "${aps[@]}"; do
     find ${ap} -type f -size 0 -delete # remove empty files from firmware folder
     for major in $(seq 10 10); do 
-      for minor in $(seq 6 9); do
+      for minor in $(seq 1 9); do
         for r in $(seq 1 9); do
           for rev in $r ; do # add ${r}a ${r}b to scan for minor variants
 	    filename="${ap}-${major}.${minor}r${rev}.img.S"
@@ -80,6 +87,9 @@ done
 	  file="$(ls ${ap}/*.img.S | tail -n 1)"
 	  filecount="$(ls ${ap}/*.img.S | wc -l)"
 	  ln -s "$file" "${ap}-latest.img.S"
+	  if [[ ${ap} == AP250 ]]; then
+	    ln -s "$file" "AP245X-latest.img.S" # the AP245X uses same image as AP250
+	  fi
 	  echo "Latest: ${file} ${filecount} different images for ${ap}."
   done
   echo To search for new firmware, remember to remove the .404 folder.
