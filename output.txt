@@ -1,0 +1,8 @@
+Searching for new versions
+Latest: AP122/AP122-10.6r1a.img.S       13 different images for AP122.
+Latest: AP230/AP230-10.6r1a.img.S       10 different images for AP230.
+Latest: AP250/AP250-10.6r1a.img.S       13 different images for AP250.
+Latest: AP550/AP550-10.5r3.img.S        8 different images for AP550.
+Latest: AP650/AP650-10.7r5.img.S       34 different images for AP650.
+Latest: AP1130/AP1130-10.6r1a.img.S        9 different images for AP1130.
+To search for new firmware, remember to remove the .404 folder.
