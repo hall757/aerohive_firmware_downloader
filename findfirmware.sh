@@ -75,11 +75,12 @@ done
     done # major
   done # ap
   find . -type f -name '*.img.S' -size 0 -delete
+  find . -type l -maxdepth 1 -name '*.img.S' -delete
   for ap in "${aps[@]}"; do 
-	  echo "Latest: $(ls ${ap}/*.img.S | tail -n 1
-			 ) $(
-			  ls ${ap}/*.img.S | wc -l
-			 ) different images for ${ap}."
+	  file="$(ls ${ap}/*.img.S | tail -n 1)"
+	  filecount="$(ls ${ap}/*.img.S | wc -l)"
+	  ln -s "$file" "${ap}-latest.img.S"
+	  echo "Latest: ${file} ${filecount} different images for ${ap}."
   done
   echo To search for new firmware, remember to remove the .404 folder.
   [[ $DRY_RUN -eq 1 ]] && echo This was a dry run. No external connection to the download server was made.
